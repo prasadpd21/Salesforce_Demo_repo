@@ -1,1 +1,54 @@
 //Trigger case study :
+//2. Create a custom integer field on account which will represent the no of contacts to be created related to the same Account record
+//AFTER_INSERT
+
+public class AccountHandler {
+ 
+    public static void run(){
+        Switch on Trigger.OperationType{
+            when BEFORE_INSERT{
+                //beforeInsert(Trigger.new);
+            }
+            when AFTER_INSERT{	
+                afterInsert(Trigger.new);
+            }
+            when BEFORE_UPDATE{
+                //beforeUpdate(Trigger.new, Trigger.old, Trigger.newmap, Trigger.oldmap);
+            }
+            when AFTER_UPDATE{
+                //afterUpdate(Trigger.new, Trigger.old, Trigger.newmap, Trigger.oldmap);
+            }
+            when BEFORE_DELETE{
+                //beforeDelete(Trigger.old, Trigger.oldmap);
+            }
+            when AFTER_DELETE{
+                //afterInsert(Trigger.old);
+            }
+        }
+    }
+    
+    public static void afterInsert(list<Account>newList){
+        set<Id> accId = new set<Id>();
+        list<Contact> ContactUpdateList = new list<Contact>();
+        integer Count;
+        for(Account acc:newList){
+            accId.add(acc.Id);
+            Count = (Integer)acc.Number_Of_Locations__c;
+            for(integer i=1;i<=Count;i++){
+                Contact obj = new Contact();
+                obj.LastName = 'Trigger Created '+ i;
+                obj.AccountId = acc.Id;
+                ContactUpdateList.add(obj);
+            }
+        }
+        try{
+            if(ContactUpdateList.size()>0){
+                Insert ContactUpdateList;
+                system.debug('ContactUpdateList--> '+ContactUpdateList);
+            }
+        }
+        catch(exception e){
+            system.debug('Error--> '+e.getMessage());
+        }
+    }
+}
