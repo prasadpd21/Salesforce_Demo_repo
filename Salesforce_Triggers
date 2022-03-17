@@ -46,7 +46,7 @@ public class AccountHandler {
 @CreatedDate : 15 March 2022
 @Description : Opportunity LineItem TriggerHandler to update product codes of added products to an opportunity(comma separated)
 */
-public class OpportunityLineItemTriggerHandl {
+public class OpportunityLineItemTriggerHandler {
     
     public static void run(){
         Switch on Trigger.OperationType{
