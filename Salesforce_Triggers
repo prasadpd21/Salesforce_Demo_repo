@@ -1,4 +1,4 @@
-//Trigger case study :
+//Trigger case study 
 //2. Create a custom integer field on account which will represent the no of contacts to be created related to the same Account record
 //AFTER_INSERT
 
@@ -11,18 +11,6 @@ public class AccountHandler {
             }
             when AFTER_INSERT{	
                 afterInsert(Trigger.new);
-            }
-            when BEFORE_UPDATE{
-                //beforeUpdate(Trigger.new, Trigger.old, Trigger.newmap, Trigger.oldmap);
-            }
-            when AFTER_UPDATE{
-                //afterUpdate(Trigger.new, Trigger.old, Trigger.newmap, Trigger.oldmap);
-            }
-            when BEFORE_DELETE{
-                //beforeDelete(Trigger.old, Trigger.oldmap);
-            }
-            when AFTER_DELETE{
-                //afterInsert(Trigger.old);
             }
         }
     }
@@ -49,6 +37,78 @@ public class AccountHandler {
         }
         catch(exception e){
             system.debug('Error--> '+e.getMessage());
+        }
+    }
+}
+
+/*
+@Author : Prasad Deshmukh
+@CreatedDate : 15 March 2022
+@Description : Opportunity LineItem TriggerHandler to update product codes of added products to an opportunity(comma separated)
+*/
+public class OpportunityLineItemTriggerHandl {
+    
+    public static void run(){
+        Switch on Trigger.OperationType{
+            when AFTER_INSERT{	
+                afterInsert(Trigger.new);
+            }
+            when AFTER_UPDATE{
+                afterInsert(Trigger.new);
+            }
+            when AFTER_DELETE{
+                afterInsert(Trigger.old);
+            }
+        }
+    }
+    
+    public static void afterInsert(list<OpportunityLineItem>oliList){
+        list<Id> OppsIdList = new list<Id>();
+        list<Opportunity> OppsUpdateList = new list<Opportunity>();
+        String CodeString;
+        for (OpportunityLineItem Ol:oliList){
+            OppsIdList.add(Ol.OpportunityId);
+        }
+        map<Id,list<OpportunityLineItem>> newmap = new map <Id,list<OpportunityLineItem>>();
+        
+        if(OppsIdList.size()>0){
+            for(OpportunityLineItem Ol:[Select Id,ProductCode,OpportunityId FROM OpportunityLineItem where OpportunityId IN :OppsIdList]){
+                if(!newmap.containskey(Ol.OpportunityId)){
+                    newmap.put(Ol.OpportunityId,new list<OpportunityLineItem>());
+                }
+                newmap.get(Ol.OpportunityId).add(Ol);
+            }
+        }
+        
+        if(OppsIdList.size()>0){
+            for(Opportunity Opp:[Select Id,Opp__c from Opportunity where Id IN:OppsIdList]){
+                CodeString = '';
+                if(newmap.containsKey(Opp.Id) && newmap.get(Opp.Id).size() > 0){
+                    for(OpportunityLineItem Ol:newmap.get(Opp.Id)){
+                        if(!CodeString.contains(Ol.ProductCode)){
+                            CodeString = CodeString + Ol.ProductCode + ',';
+                            system.debug('first CodeString'+CodeString);
+                        }
+                        
+                    }
+                    CodeString = CodeString.removeEnd(',');
+                    system.debug('last CodeString'+CodeString);
+                    Opp.Opp__c = CodeString;
+                }
+                else{
+                    Opp.Opp__c = NULL;
+                }
+                OppsUpdateList.add(Opp);
+            }
+        }
+        try{
+            if(OppsUpdateList.size()>0){
+                Update OppsUpdateList;
+                system.debug('OppsUpdateList'+OppsUpdateList);
+            }
+        }
+        catch(Exception e){
+            system.debug('Exception'+e.getMessage());
         }
     }
 }
