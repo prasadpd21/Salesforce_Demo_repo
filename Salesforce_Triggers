@@ -121,8 +121,6 @@ public class FutureDemo {
         Account acc= new Account();
         acc.Name = 'Future demo class002';
         Insert acc;
-        //list<User> Userlist = new list<User>();
-       //User uc= [Select Id,Name from User where Name = 'Trigger TestUser'];
         Profile p = [select Id  from Profile where name = 'Standard User'];
         UserRole r= [select Id  from UserRole where name ='COO'];
        User u = new User();
