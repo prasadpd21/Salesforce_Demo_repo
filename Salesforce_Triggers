@@ -112,3 +112,30 @@ public class OpportunityLineItemTriggerHandler {
         }
     }
 }
+
+//@future method to implement asynchronous apex
+
+public class FutureDemo {
+    
+    public static void mixDml(){
+        Account acc= new Account();
+        acc.Name = 'Future demo class002';
+        Insert acc;
+        //list<User> Userlist = new list<User>();
+       //User uc= [Select Id,Name from User where Name = 'Trigger TestUser'];
+        Profile p = [select Id  from Profile where name = 'Standard User'];
+        UserRole r= [select Id  from UserRole where name ='COO'];
+       User u = new User();
+        u.LastName = 'ApexCreated';
+        u.Alias = 'test002';
+        u.Username = 'Demouser1010@gmail.com';
+        u.Email = 'Demouser10@gmail.com';
+        u.EmailEncodingKey = 'UTF-8';
+        u.LanguageLocaleKey = 'en_US';
+        u.LocaleSidKey = 'en_US';
+        u.TimeZoneSidKey = 'America/Los_Angeles';
+        u.ProfileId = p.Id;
+        u.UserRoleId = r.Id;
+        insert u;
+    }
+}
